@@ -101,21 +101,20 @@ unset!(env::Environment, flag::EnvironmentFlags) = unset!(env, Cuint(flag))
     * DBs
 * `value` parameter value
 
-**Note:** Consult LMDB documentation for particual values of environment parameters and flags.
+**Note:** Consult LMDB documentation for particular values of environment parameters and flags.
 """
-function setindex!(env::Environment, val::Cuint, option::Symbol)
+function setindex!(env::Environment, val::Int, option::Symbol)
     if option == :Readers
-        mdb_env_set_maxreaders(env.handle, val)
+        mdb_env_set_maxreaders(env.handle, Cuint(val))
     elseif option == :MapSize
-        mdb_env_set_mapsize(env.handle, val)
+        mdb_env_set_mapsize(env.handle, Csize_t(val))
     elseif option == :DBs
-        mdb_env_set_maxdbs(env.handle, val)
+        mdb_env_set_maxdbs(env.handle, Cuint(val))
     else
         @warn("Cannot set $(string(option)) value")
         Cint(0)
     end
 end
-setindex!(env::Environment, val::Int, option::Symbol) = setindex!(env, Cuint(val), option)
 
 """Get environment flags and parameters
 
@@ -126,9 +125,9 @@ setindex!(env::Environment, val::Int, option::Symbol) = setindex!(env, Cuint(val
     * Readers
     * KeySize
 
-**Note:** Consult LMDB documentation for particual values of environment parameters and flags.
+**Note:** Consult LMDB documentation for particular values of environment parameters and flags.
 """
-function getindex(env::Environment, option::Symbol)
+function getindex(env::Environment, option::Symbol)::Int
     value = Cuint[0]
     if option == :Flags
         flags = Cuint[0]
@@ -140,7 +139,7 @@ function getindex(env::Environment, option::Symbol)
     else
         @warn("Cannot get $(string(option)) value")
     end
-    return value[1]
+    return Int(value[1])
 end
 
 """Return information about the LMDB environment."""
